@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
 import { GetCvsQueryParamsDto } from './dto/get-cvs-query-params.dto';
@@ -15,11 +15,11 @@ export class CvsService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
-  async create(createCvDto: CreateCvDto) {
+  async create(createCvDto: CreateCvDto, userId: number) {
     let cv = new Cv();
-    const user = this.userRepository.findOne({where: { id: createCvDto.userId } });
+    const user = this.userRepository.findOne({where: { id: userId } });
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new Error('User not found');
     }
     cv= {user:user, ...createCvDto} as Cv;
     return await this.cvRepository.save(cv);
@@ -32,7 +32,7 @@ export class CvsService {
     cvs = cvs.filter((cv) => {
       let isValidAge = age == undefined || cv.age == age;
       return isValidAge
-      && (cv.name.toLowerCase().includes(chaine?.toLowerCase()??'') ||
+        && (cv.name.toLowerCase().includes(chaine?.toLowerCase()??'') ||
           cv.firstname.toLowerCase().includes(chaine?.toLowerCase()??'') ||
           cv.job.toLowerCase().includes(chaine?.toLowerCase()??'')
         )
@@ -40,22 +40,29 @@ export class CvsService {
     return cvs;
   }
 
-  async findOne(id: number) {
-    return await this.cvRepository.findOne({where: { id } });
+  findOne(id: number) {
+    return `This action returns a #${id} cv`;
   }
 
-  async update(id: number, updateCvDto: UpdateCvDto) {
+  async update(id: number, updateCvDto: UpdateCvDto,userId: number) {
     let cv = await this.cvRepository.findOne({where: { id } });
-    const user = this.userRepository.findOne({where: { id: updateCvDto.userId } });
-    if(!user) {
-      throw new NotFoundException('User not found');
+    if (!cv) {
+      throw new Error('CV not found');
     }
-    const {userId, ...rest} = updateCvDto;
-    cv ={...cv, ...rest} as Cv;
+    if (cv.user?.id!== userId) {
+      throw new ForbiddenException('You are not allowed to update this CV');
+    }
+
+    const user = this.userRepository.findOne({where: { id: userId } });
+    cv ={...cv, ...updateCvDto} as Cv;
     return await this.cvRepository.save(cv);
   }
 
-  remove(id: number) {
+  remove(id: number,userId: number) {
+    if (id!== userId) {
+      throw new ForbiddenException('You are not allowed to delete this CV');
+    }
     return this.cvRepository.delete(id);
+
   }
 }

@@ -3,7 +3,7 @@ import { CvsService } from './cvs.service';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
 import { GetCvsQueryParamsDto } from './dto/get-cvs-query-params.dto';
-import { Query } from '@nestjs/graphql';
+import { Query } from '@nestjs/common';
 
 @Controller('cvs')
 export class CvsController {

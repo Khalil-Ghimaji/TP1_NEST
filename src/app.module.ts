@@ -7,6 +7,12 @@ import { Skill } from './skills/entities/skill.entity';
 import { Cv } from './cvs/entities/cv.entity';
 import { SkillSeeder } from './database/seeders/skill.seeder';
 import { CvSeeder } from './database/seeders/cv.seeder';
+import { UsersController } from './users/users.controller';
+import { CvsController } from './cvs/cvs.controller';
+import { SkillsController } from './skills/skills.controller';
+import { UsersModule } from './users/users.module';
+import { SkillsModule } from './skills/skills.module';
+import { CvsModule } from './cvs/cvs.module';
 
 @Module({
   imports: [
@@ -17,8 +23,11 @@ import { CvSeeder } from './database/seeders/cv.seeder';
       entities: [User, Cv, Skill],
       synchronize: true, // À utiliser avec précaution en production
     }),
-    TypeOrmModule.forFeature([User, Cv,Skill])
+    TypeOrmModule.forFeature([User, Cv,Skill]),
+    UsersModule,
+    SkillsModule,
+    CvsModule,
   ],
-  providers: [SeederService, UserSeeder, SkillSeeder,CvSeeder ],
+  providers: [],
 })
 export class AppModule {}
