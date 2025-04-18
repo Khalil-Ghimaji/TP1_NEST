@@ -17,11 +17,11 @@ export class CvsService {
   ) {}
   async create(createCvDto: CreateCvDto, userId: number) {
     let cv = new Cv();
-    const user = this.userRepository.findOne({where: { id: userId } });
+    const user = await this.userRepository.findOne({where: { id: userId } });
     if (!user) {
       throw new Error('User not found');
     }
-    cv= {user:user, ...createCvDto} as Cv;
+    cv= {user:user, ...createCvDto} as any;
     return await this.cvRepository.save(cv);
   }
 
@@ -53,7 +53,7 @@ export class CvsService {
       throw new ForbiddenException('You are not allowed to update this CV');
     }
 
-    const user = this.userRepository.findOne({where: { id: userId } });
+    const user = await this.userRepository.findOne({where: { id: userId } });
     cv ={...cv, ...updateCvDto} as Cv;
     return await this.cvRepository.save(cv);
   }

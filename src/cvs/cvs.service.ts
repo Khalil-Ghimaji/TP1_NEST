@@ -16,12 +16,11 @@ export class CvsService {
     private readonly userRepository: Repository<User>,
   ) {}
   async create(createCvDto: CreateCvDto) {
-    let cv = new Cv();
-    const user = this.userRepository.findOne({where: { id: createCvDto.userId } });
+    const user = await this.userRepository.findOne({where: { id: createCvDto.userId } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    cv= {user:user, ...createCvDto} as Cv;
+    let cv= {user:user, ...createCvDto};
     return await this.cvRepository.save(cv);
   }
 
@@ -46,7 +45,7 @@ export class CvsService {
 
   async update(id: number, updateCvDto: UpdateCvDto) {
     let cv = await this.cvRepository.findOne({where: { id } });
-    const user = this.userRepository.findOne({where: { id: updateCvDto.userId } });
+    const user = await this.userRepository.findOne({where: { id: updateCvDto.userId } });
     if(!user) {
       throw new NotFoundException('User not found');
     }
